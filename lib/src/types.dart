@@ -113,6 +113,9 @@ class PointVector {
     this.pressure,
   });
 
+  static const zero = PointVector(x: 0, y: 0);
+  static const one = PointVector(x: 1, y: 1);
+
   PointVector.fromOffset({
     required Offset offset,
     this.pressure,

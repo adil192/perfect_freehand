@@ -49,7 +49,7 @@ List<StrokePoint> getStrokePoints(
     StrokePoint(
       point: pts.first,
       pressure: pts.first.pressure ?? 0.25,
-      vector: PointVector(x: 1, y: 1),
+      vector: PointVector.one,
       distance: 0,
       runningLength: 0,
     ),
@@ -119,7 +119,7 @@ List<StrokePoint> getStrokePoints(
     strokePoints.first.vector = strokePoints[1].vector;
   } else {
     // If there's only one point, set the vector to zero.
-    strokePoints.first.vector = PointVector(x: 0, y: 0);
+    strokePoints.first.vector = PointVector.zero;
   }
 
   return strokePoints;
