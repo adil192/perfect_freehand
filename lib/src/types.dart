@@ -42,17 +42,37 @@ class StrokeOptions {
   });
 }
 
+class StrokeEasings {
+  /// Identity function.
+  /// Returns the input value.
+  static double identity(double t) => t;
+
+  /// Ease-in-out function.
+  /// Used for the taper start.
+  static double easeInOut(double t) => t * (2 - t);
+
+  /// Ease-out-cubic function.
+  /// Used for the taper end.
+  static double easeOutCubic(double t) => --t * t * t + 1;
+}
+
 /// Stroke options for the start/end of the line.
 class StrokeEndOptions {
   bool? cap;
-  double? taper;
+  bool? taperEnabled;
+  double? customTaper;
   double Function(double)? easing;
 
   StrokeEndOptions({
     this.cap,
-    this.taper,
+    this.taperEnabled,
+    this.customTaper,
     this.easing,
-  });
+  }) {
+    if (customTaper != null) {
+      taperEnabled = true;
+    }
+  }
 }
 
 /// The points returned by [getStrokePoints]
@@ -83,11 +103,11 @@ class StrokePoint {
 }
 
 class PointVector {
-  double x;
-  double y;
-  double? pressure;
+  final double x;
+  final double y;
+  final double? pressure;
 
-  PointVector({
+  const PointVector({
     required this.x,
     required this.y,
     this.pressure,
@@ -125,15 +145,23 @@ class PointVector {
     );
   }
 
-  @override
-  bool operator ==(Object other) =>
-      other is PointVector &&
-      x == other.x &&
-      y == other.y &&
-      pressure == other.pressure;
+  /// Rotate a vector around another vector by [r] radians
+  PointVector rotAround(PointVector center, double r) {
+    final s = sin(r);
+    final c = cos(r);
 
-  @override
-  int get hashCode => Object.hash(x, y, pressure);
+    final px = x - center.x;
+    final py = y - center.y;
+
+    final nx = px * c - py * s;
+    final ny = px * s + py * c;
+
+    return PointVector(
+      x: nx + center.x,
+      y: ny + center.y,
+      pressure: pressure,
+    );
+  }
 
   double distanceTo(PointVector point) {
     final dx = x - point.x;
@@ -150,4 +178,52 @@ class PointVector {
       y: dy / distance,
     );
   }
+
+  /// Dot product
+  double dpr(PointVector other) {
+    return x * other.x + y * other.y;
+  }
+
+  /// Perpendicular rotation of the vector
+  PointVector perpendicular() {
+    return PointVector(
+      x: y,
+      y: -x,
+    );
+  }
+
+  PointVector scale(double scale) {
+    return PointVector(
+      x: x * scale,
+      y: y * scale,
+    );
+  }
+
+  Offset toOffset() => Offset(x, y);
+
+  PointVector operator +(PointVector other) {
+    return PointVector(
+      x: x + other.x,
+      y: y + other.y,
+      pressure: pressure ?? other.pressure,
+    );
+  }
+
+  PointVector operator -(PointVector other) {
+    return PointVector(
+      x: x - other.x,
+      y: y - other.y,
+      pressure: other.pressure ?? pressure,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is PointVector &&
+      x == other.x &&
+      y == other.y &&
+      pressure == other.pressure;
+
+  @override
+  int get hashCode => Object.hash(x, y, pressure);
 }
