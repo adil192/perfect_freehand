@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 /// The options object for [getStroke] or [getStrokePoints].
@@ -57,10 +58,19 @@ class StrokeEndOptions {
 /// The points returned by [getStrokePoints]
 /// and the input for [getStrokeOutlinePoints].
 class StrokePoint {
+  /// The adjusted point.
   PointVector point;
+
+  /// The input pressure.
   double pressure;
+
+  /// The distance between the current point and the previous point.
   double distance;
+
+  /// The vector from the current point to the previous point.
   PointVector vector;
+
+  /// The total distance so far.
   double runningLength;
 
   StrokePoint({
@@ -112,6 +122,32 @@ class PointVector {
       x: lerpDouble(x, other.x, t)!,
       y: lerpDouble(y, other.y, t)!,
       pressure: lerpDouble(pressure, other.pressure, t) ?? pressure ?? 0.5,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is PointVector &&
+      x == other.x &&
+      y == other.y &&
+      pressure == other.pressure;
+
+  @override
+  int get hashCode => Object.hash(x, y, pressure);
+
+  double distanceTo(PointVector point) {
+    final dx = x - point.x;
+    final dy = y - point.y;
+    return sqrt(dx * dx + dy * dy);
+  }
+
+  PointVector unitVectorTo(PointVector other) {
+    final dx = other.x - x;
+    final dy = other.y - y;
+    final distance = sqrt(dx * dx + dy * dy);
+    return PointVector(
+      x: dx / distance,
+      y: dy / distance,
     );
   }
 }
