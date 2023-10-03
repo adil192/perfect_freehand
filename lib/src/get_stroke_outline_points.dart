@@ -55,7 +55,7 @@ List<Offset> getStrokeOutlinePoints(
   // Drawn lines almost always start slow!
   var prevPressure = () {
     double acc = points.first.pressure;
-    for (final curr in points.sublist(0, 10)) {
+    for (final curr in points.sublist(0, min(10, points.length - 1))) {
       final double pressure;
       if (simulatePressure) {
         // Speed of change - how fast should the pressure be changing?
