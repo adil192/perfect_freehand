@@ -75,10 +75,10 @@ List<Offset> getStrokeOutlinePoints(
 
   // The current radius
   var radius = getStrokeRadius(
-    size: size,
-    thinning: thinning,
-    pressure: points.last.pressure,
-    easing: easing,
+    size,
+    thinning,
+    points.last.pressure,
+    easing,
   );
 
   // The radius of the first saved point
@@ -140,10 +140,10 @@ List<Offset> getStrokeOutlinePoints(
       }
 
       radius = getStrokeRadius(
-        size: size,
-        thinning: thinning,
-        pressure: pressure,
-        easing: easing,
+        size,
+        thinning,
+        pressure,
+        easing,
       );
     } else {
       radius = size / 2;
