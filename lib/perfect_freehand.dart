@@ -1,7 +1,7 @@
 library perfect_freehand;
 
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
-}
+export 'src/get_stroke_outline_points.dart';
+export 'src/get_stroke_points.dart';
+// export 'src/get_stroke_radius.dart';
+export 'src/get_stroke.dart';
+export 'src/types.dart';
