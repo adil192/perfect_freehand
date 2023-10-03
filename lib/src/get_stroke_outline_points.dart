@@ -11,10 +11,10 @@ const rateOfPressureChange = 0.275;
 const fixedPi = pi + 0.0001;
 
 /// Get an array of points representing the outline of a stroke.
-List<Offset> getStrokeOutlinePoints({
-  required List<StrokePoint> points,
+List<Offset> getStrokeOutlinePoints(
+  List<StrokePoint> points, [
   StrokeOptions? options,
-}) {
+]) {
   final size = options?.size ?? 16;
   final smoothing = options?.smoothing ?? 0.5;
   final thinning = options?.thinning ?? 0.5;
