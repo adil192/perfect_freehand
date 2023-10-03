@@ -166,10 +166,14 @@ class PointVector {
     );
   }
 
-  double distanceTo(PointVector point) {
+  double distanceSquaredTo(PointVector point) {
     final dx = x - point.x;
     final dy = y - point.y;
-    return sqrt(dx * dx + dy * dy);
+    return dx * dx + dy * dy;
+  }
+
+  double distanceTo(PointVector point) {
+    return sqrt(distanceSquaredTo(point));
   }
 
   PointVector unitVectorTo(PointVector other) {
@@ -202,6 +206,23 @@ class PointVector {
     );
   }
 
+  /// Get the normalized / unit vector.
+  PointVector unit() {
+    final length = sqrt(x * x + y * y);
+    return PointVector(
+      x: x / length,
+      y: y / length,
+    );
+  }
+
+  /// Project this point in the direction of [direction] by a scalar [distance].
+  PointVector project(PointVector direction, double distance) {
+    return PointVector(
+      x: x + direction.x * distance,
+      y: y + direction.y * distance,
+    );
+  }
+
   Offset toOffset() => Offset(x, y);
 
   PointVector operator +(PointVector other) {
@@ -217,6 +238,15 @@ class PointVector {
       x: x - other.x,
       y: y - other.y,
       pressure: other.pressure ?? pressure,
+    );
+  }
+
+  /// Negates the vector.
+  PointVector operator -() {
+    return PointVector(
+      x: -x,
+      y: -y,
+      pressure: pressure,
     );
   }
 

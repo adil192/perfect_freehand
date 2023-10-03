@@ -46,14 +46,14 @@ List<Offset> getStrokeOutlinePoints({
   final minDistance = pow(size * smoothing, 2);
 
   // Our collected left and right points
-  final leftPoints = <Offset>[];
-  final rightPoints = <Offset>[];
+  final leftPoints = <PointVector>[];
+  final rightPoints = <PointVector>[];
 
   // Previous pressure.
   // We start with average of first five pressures,
   // in order to prevent fat starts for every line.
   // Drawn lines almost always start slow!
-  final prevPressure = () {
+  var prevPressure = () {
     double acc = points.first.pressure;
     for (final curr in points.sublist(0, 10)) {
       final double pressure;
@@ -195,10 +195,10 @@ List<Offset> getStrokeOutlinePoints({
       const step = 1 / 13;
       for (double t = 0; t <= 1; t += step) {
         tl = (point - offset).rotAround(point, fixedPi * t);
-        leftPoints.add(tl.toOffset());
+        leftPoints.add(tl);
 
         tr = (point + offset).rotAround(point, fixedPi * -t);
-        rightPoints.add(tr.toOffset());
+        rightPoints.add(tr);
       }
 
       pl = tl;
@@ -215,8 +215,8 @@ List<Offset> getStrokeOutlinePoints({
     // Handle the last point
     if (i == points.length - 1) {
       final offset = vector.perpendicular().scale(radius);
-      leftPoints.add((point - offset).toOffset());
-      rightPoints.add((point + offset).toOffset());
+      leftPoints.add(point - offset);
+      rightPoints.add(point + offset);
       continue;
     }
 
@@ -230,6 +230,140 @@ List<Offset> getStrokeOutlinePoints({
      * points array.
      */
 
-    // TODO(adil192): Continue porting this
+    final offset =
+        nextVector.lerp(nextDpr, vector).perpendicular().scale(radius);
+
+    tl = point - offset;
+
+    if (i <= 1 || pl.distanceSquaredTo(tl) > minDistance) {
+      leftPoints.add(tl);
+      pl = tl;
+    }
+
+    tr = point + offset;
+
+    if (i <= 1 || pr.distanceSquaredTo(tr) > minDistance) {
+      rightPoints.add(tr);
+      pr = tr;
+    }
+
+    // Set variables for next iteration
+    prevPressure = pressure;
+    prevVector = vector;
   }
+
+  /**
+   * Drawing caps
+   * 
+   * Now that we have our points on either side of the line, we need to
+   * draw caps at the start and end. Tapered lines don't have caps, but
+   * may have dots for very short lines.
+   */
+
+  final firstPoint = points.first.point;
+  final lastPoint =
+      points.length > 1 ? points.last.point : firstPoint + points.first.vector;
+
+  final startCap = <PointVector>[];
+  final endCap = <PointVector>[];
+
+  /**
+   * Draw a dot for very short or completed strokes
+   * 
+   * If the line is too short to gather left or right points and if the line is
+   * not tapered on either side, draw a dot. If the line is tapered, then only
+   * draw a dot if the line is both very short and complete. If we draw a dot,
+   * we can just return those points.
+   */
+
+  if (points.length == 1) {
+    if (!(taperStart > 0 || taperEnd > 0) || isComplete) {
+      final start = firstPoint.project(
+        (firstPoint - lastPoint).perpendicular().unit(),
+        -(firstRadius ?? radius),
+      );
+      final List<PointVector> dotPts = [];
+      const step = 1 / 13;
+      for (double t = step; t <= 1; t += step) {
+        dotPts.add(start.rotAround(firstPoint, fixedPi * 2 * t));
+      }
+      return dotPts.map((p) => p.toOffset()).toList();
+    }
+  } else {
+    /**
+     * Draw a start cap
+     * 
+     * Unless the line has a tapered start, or unless the line has a tapered end
+     * and the line is very short, draw a start cap around the first point. Use
+     * the distance between the second left and right point for the cap's radius.
+     * Finally remove the first left and right points. :psyduck:
+     */
+
+    if (taperStart > 0 || (taperEnd > 0 && points.length == 1)) {
+      // The start point is tapered, noop
+    } else if (capStart) {
+      // Draw the round cap - add thirteen points rotating the right point
+      // around the start point to the left point
+      const step = 1 / 13;
+      for (double t = step; t <= 1; t += step) {
+        final pt = rightPoints.first.rotAround(firstPoint, fixedPi * t);
+        startCap.add(pt);
+      }
+    } else {
+      // Draw the flat cap
+      // - add a point to the left and right of the start point
+      final cornersVector = leftPoints.first - rightPoints.first;
+      final offsetA = cornersVector.scale(0.5);
+      final offsetB = cornersVector.scale(0.51);
+
+      startCap.add(firstPoint - offsetA);
+      startCap.add(firstPoint - offsetB);
+      startCap.add(firstPoint + offsetB);
+      startCap.add(firstPoint + offsetA);
+    }
+  }
+
+  /**
+   * Draw an end cap
+   * 
+   * If the line does not have a tapered end, and unless the line has a tapered
+   * start and the line is very short, draw a cap around the last point. Finally,
+   * remove the last left and right points. Otherwise, add the last point. Note
+   * that This cap is a full-turn-and-a-half: this prevents incorrect caps on
+   * sharp end turns.
+   */
+
+  final direction = (-points.last.vector).perpendicular();
+
+  if (taperEnd > 0 || (taperStart > 0 && points.length == 1)) {
+    // Tapered end - push the last point to the line
+    endCap.add(lastPoint);
+  } else if (capEnd) {
+    // Draw the round end cap
+    final start = lastPoint.project(direction, radius);
+    const step = 1 / 29;
+    for (double t = step; t <= 1; t += step) {
+      endCap.add(start.rotAround(lastPoint, fixedPi * 3 * t));
+    }
+  } else {
+    // Draw the flat end cap
+
+    endCap.add(lastPoint + direction.scale(radius));
+    endCap.add(lastPoint + direction.scale(radius * 0.99));
+    endCap.add(lastPoint - direction.scale(radius * 0.99));
+    endCap.add(lastPoint - direction.scale(radius));
+  }
+
+  /**
+   * Return the points in the correct winding order: begin on the left side, then
+   * continue around the end cap, then come back along the right side, and finally
+   * complete the start cap.
+   */
+
+  return [
+    ...leftPoints,
+    ...endCap,
+    ...rightPoints.reversed,
+    ...startCap.reversed,
+  ].map((p) => p.toOffset()).toList();
 }
