@@ -364,6 +364,6 @@ List<Offset> getStrokeOutlinePoints(
     ...leftPoints,
     ...endCap,
     ...rightPoints.reversed,
-    ...startCap.reversed,
+    ...startCap,
   ].map((p) => p.toOffset()).toList();
 }
