@@ -125,15 +125,18 @@ class StrokePoint {
 }
 
 class PointVector {
-  final double x;
-  final double y;
-  final double? pressure;
-
   const PointVector(
     this.x,
     this.y, [
     this.pressure,
   ]);
+
+  final double x;
+  final double y;
+  final double? pressure;
+
+  @Deprecated('Use pressure instead')
+  double get p => pressure ?? 0.5;
 
   static const zero = PointVector(0, 0);
   static const one = PointVector(1, 1);
