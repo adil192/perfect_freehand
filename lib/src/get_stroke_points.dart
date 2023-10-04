@@ -37,9 +37,9 @@ List<StrokePoint> getStrokePoints(
   if (pts.length == 1) {
     final first = pts.first;
     pts.add(PointVector(
-      x: first.x + 1,
-      y: first.y + 1,
-      pressure: first.pressure,
+      first.x + 1,
+      first.y + 1,
+      first.pressure,
     ));
   }
 

@@ -6,12 +6,8 @@ class Point extends PointVector {
   double get p => pressure ?? 0.5;
 
   const Point(
-    double x,
-    double y, [
-    double? pressure,
-  ]) : super(
-          x: x,
-          y: y,
-          pressure: pressure,
-        );
+    super.x,
+    super.y, [
+    super.pressure,
+  ]);
 }

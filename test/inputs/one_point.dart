@@ -2,7 +2,7 @@ import 'package:perfect_freehand/src/types.dart';
 import 'package:flutter/material.dart';
 
 const onePoint = [
-  PointVector(x: 464.91, y: 286.51),
+  PointVector(464.91, 286.51),
 ];
 
 const defaultOutputOnePoint = [

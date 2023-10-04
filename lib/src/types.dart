@@ -107,14 +107,14 @@ class PointVector {
   final double y;
   final double? pressure;
 
-  const PointVector({
-    required this.x,
-    required this.y,
+  const PointVector(
+    this.x,
+    this.y, [
     this.pressure,
-  });
+  ]);
 
-  static const zero = PointVector(x: 0, y: 0);
-  static const one = PointVector(x: 1, y: 1);
+  static const zero = PointVector(0, 0);
+  static const one = PointVector(1, 1);
 
   PointVector.fromOffset({
     required Offset offset,
@@ -128,9 +128,9 @@ class PointVector {
     double? pressure,
   }) =>
       PointVector(
-        x: x ?? this.x,
-        y: y ?? this.y,
-        pressure: pressure ?? this.pressure,
+        x ?? this.x,
+        y ?? this.y,
+        pressure ?? this.pressure,
       );
 
   PointVector lerp(
@@ -142,9 +142,9 @@ class PointVector {
     assert(other.pressure != null);
 
     return PointVector(
-      x: lerpDouble(x, other.x, t)!,
-      y: lerpDouble(y, other.y, t)!,
-      pressure: lerpDouble(pressure, other.pressure, t) ?? pressure ?? 0.5,
+      lerpDouble(x, other.x, t)!,
+      lerpDouble(y, other.y, t)!,
+      lerpDouble(pressure, other.pressure, t) ?? pressure ?? 0.5,
     );
   }
 
@@ -160,9 +160,9 @@ class PointVector {
     final ny = px * s + py * c;
 
     return PointVector(
-      x: nx + center.x,
-      y: ny + center.y,
-      pressure: pressure,
+      nx + center.x,
+      ny + center.y,
+      pressure,
     );
   }
 
@@ -181,8 +181,8 @@ class PointVector {
     final dy = other.y - y;
     final distance = sqrt(dx * dx + dy * dy);
     return PointVector(
-      x: dx / distance,
-      y: dy / distance,
+      dx / distance,
+      dy / distance,
     );
   }
 
@@ -194,15 +194,15 @@ class PointVector {
   /// Perpendicular rotation of the vector
   PointVector perpendicular() {
     return PointVector(
-      x: y,
-      y: -x,
+      y,
+      -x,
     );
   }
 
   PointVector scale(double scale) {
     return PointVector(
-      x: x * scale,
-      y: y * scale,
+      x * scale,
+      y * scale,
     );
   }
 
@@ -210,16 +210,16 @@ class PointVector {
   PointVector unit() {
     final length = sqrt(x * x + y * y);
     return PointVector(
-      x: x / length,
-      y: y / length,
+      x / length,
+      y / length,
     );
   }
 
   /// Project this point in the direction of [direction] by a scalar [distance].
   PointVector project(PointVector direction, double distance) {
     return PointVector(
-      x: x + direction.x * distance,
-      y: y + direction.y * distance,
+      x + direction.x * distance,
+      y + direction.y * distance,
     );
   }
 
@@ -227,26 +227,26 @@ class PointVector {
 
   PointVector operator +(PointVector other) {
     return PointVector(
-      x: x + other.x,
-      y: y + other.y,
-      pressure: pressure ?? other.pressure,
+      x + other.x,
+      y + other.y,
+      pressure ?? other.pressure,
     );
   }
 
   PointVector operator -(PointVector other) {
     return PointVector(
-      x: x - other.x,
-      y: y - other.y,
-      pressure: other.pressure ?? pressure,
+      x - other.x,
+      y - other.y,
+      other.pressure ?? pressure,
     );
   }
 
   /// Negates the vector.
   PointVector operator -() {
     return PointVector(
-      x: -x,
-      y: -y,
-      pressure: pressure,
+      -x,
+      -y,
+      pressure,
     );
   }
 
