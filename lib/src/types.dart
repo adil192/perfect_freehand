@@ -40,6 +40,28 @@ class StrokeOptions {
     this.end,
     this.isComplete,
   });
+
+  StrokeOptions copyWith({
+    double? size,
+    double? thinning,
+    double? smoothing,
+    double? streamline,
+    double Function(double)? easing,
+    bool? simulatePressure,
+    StrokeEndOptions? start,
+    StrokeEndOptions? end,
+    bool? isComplete,
+  }) => StrokeOptions(
+        size: size ?? this.size,
+        thinning: thinning ?? this.thinning,
+        smoothing: smoothing ?? this.smoothing,
+        streamline: streamline ?? this.streamline,
+        easing: easing ?? this.easing,
+        simulatePressure: simulatePressure ?? this.simulatePressure,
+        start: start ?? this.start,
+        end: end ?? this.end,
+        isComplete: isComplete ?? this.isComplete,
+      );
 }
 
 class StrokeEasings {
