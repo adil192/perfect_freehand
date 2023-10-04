@@ -58,7 +58,7 @@ class _DrawingPageState extends State<DrawingPage> {
   }
 
   void onPointerDown(PointerDownEvent details) {
-    options = defaultOptions.copyWith(
+    options = options.copyWith(
       simulatePressure: details.kind != PointerDeviceKind.stylus,
     );
 
