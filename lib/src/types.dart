@@ -159,10 +159,6 @@ class PointVector {
     double t,
     PointVector other,
   ) {
-    assert(t >= 0.0 && t <= 1.0);
-    assert(pressure != null);
-    assert(other.pressure != null);
-
     return PointVector(
       lerpDouble(x, other.x, t)!,
       lerpDouble(y, other.y, t)!,
