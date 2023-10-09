@@ -51,7 +51,8 @@ class StrokeOptions {
     StrokeEndOptions? start,
     StrokeEndOptions? end,
     bool? isComplete,
-  }) => StrokeOptions(
+  }) =>
+      StrokeOptions(
         size: size ?? this.size,
         thinning: thinning ?? this.thinning,
         smoothing: smoothing ?? this.smoothing,
@@ -124,12 +125,15 @@ class StrokePoint {
   });
 }
 
-class PointVector {
+class PointVector extends Offset {
   const PointVector(
     this.x,
     this.y, [
     this.pressure,
-  ]);
+  ]) : super(
+          x,
+          y,
+        );
 
   final double x;
   final double y;
@@ -143,9 +147,8 @@ class PointVector {
 
   PointVector.fromOffset({
     required Offset offset,
-    this.pressure,
-  })  : x = offset.dx,
-        y = offset.dy;
+    double? pressure,
+  }) : this(offset.dx, offset.dy, pressure);
 
   PointVector copyWith({
     double? x,
@@ -220,13 +223,6 @@ class PointVector {
     );
   }
 
-  PointVector scale(double scale) {
-    return PointVector(
-      x * scale,
-      y * scale,
-    );
-  }
-
   /// Get the normalized / unit vector.
   PointVector unit() {
     final length = sqrt(x * x + y * y);
@@ -245,25 +241,41 @@ class PointVector {
     );
   }
 
-  Offset toOffset() => Offset(x, y);
-
-  PointVector operator +(PointVector other) {
+  @override
+  PointVector operator *(double operand) {
     return PointVector(
-      x + other.x,
-      y + other.y,
-      pressure ?? other.pressure,
+      x * operand,
+      y * operand,
+      pressure,
     );
   }
 
-  PointVector operator -(PointVector other) {
+  @override
+  PointVector operator +(Offset other) {
     return PointVector(
-      x - other.x,
-      y - other.y,
-      other.pressure ?? pressure,
+      x + other.dx,
+      y + other.dy,
+      switch (other) {
+        _ when other is PointVector => pressure ?? other.pressure,
+        _ => pressure,
+      },
+    );
+  }
+
+  @override
+  PointVector operator -(Offset other) {
+    return PointVector(
+      x - other.dx,
+      y - other.dy,
+      switch (other) {
+        _ when other is PointVector => other.pressure ?? pressure,
+        _ => pressure,
+      },
     );
   }
 
   /// Negates the vector.
+  @override
   PointVector operator -() {
     return PointVector(
       -x,

@@ -33,7 +33,7 @@ void main() {
         expect(stroke.any((offset) {
           return offset.dx.isNaN || offset.dy.isNaN;
         }), false, reason: 'stroke contains NaNs');
-        
+
         await tester.pumpWidget(StrokeDrawer(stroke: stroke));
 
         await expectLater(

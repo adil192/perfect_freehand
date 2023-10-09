@@ -190,7 +190,7 @@ List<Offset> getStrokeOutlinePoints(
       // Considering saving these and drawing them later? So that we can avoid
       // crossing future points.
 
-      final offset = prevVector.perpendicular().scale(radius);
+      final offset = prevVector.perpendicular() * radius;
 
       const step = 1 / 13;
       for (double t = 0; t <= 1; t += step) {
@@ -214,7 +214,7 @@ List<Offset> getStrokeOutlinePoints(
 
     // Handle the last point
     if (i == points.length - 1) {
-      final offset = vector.perpendicular().scale(radius);
+      final offset = vector.perpendicular() * radius;
       leftPoints.add(point - offset);
       rightPoints.add(point + offset);
       continue;
@@ -230,8 +230,7 @@ List<Offset> getStrokeOutlinePoints(
      * points array.
      */
 
-    final offset =
-        nextVector.lerp(nextDpr, vector).perpendicular().scale(radius);
+    final offset = nextVector.lerp(nextDpr, vector).perpendicular() * radius;
 
     tl = point - offset;
 
@@ -287,7 +286,7 @@ List<Offset> getStrokeOutlinePoints(
       for (double t = step; t <= 1; t += step) {
         dotPts.add(start.rotAround(firstPoint, fixedPi * 2 * t));
       }
-      return dotPts.map((p) => p.toOffset()).toList();
+      return dotPts;
     }
   } else {
     /**
@@ -313,8 +312,8 @@ List<Offset> getStrokeOutlinePoints(
       // Draw the flat cap
       // - add a point to the left and right of the start point
       final cornersVector = leftPoints.first - rightPoints.first;
-      final offsetA = cornersVector.scale(0.5);
-      final offsetB = cornersVector.scale(0.51);
+      final offsetA = cornersVector * 0.5;
+      final offsetB = cornersVector * 0.51;
 
       startCap.add(firstPoint - offsetA);
       startCap.add(firstPoint - offsetB);
@@ -348,10 +347,10 @@ List<Offset> getStrokeOutlinePoints(
   } else {
     // Draw the flat end cap
 
-    endCap.add(lastPoint + direction.scale(radius));
-    endCap.add(lastPoint + direction.scale(radius * 0.99));
-    endCap.add(lastPoint - direction.scale(radius * 0.99));
-    endCap.add(lastPoint - direction.scale(radius));
+    endCap.add(lastPoint + direction * radius);
+    endCap.add(lastPoint + direction * (radius * 0.99));
+    endCap.add(lastPoint - direction * (radius * 0.99));
+    endCap.add(lastPoint - direction * radius);
   }
 
   /**
@@ -365,5 +364,5 @@ List<Offset> getStrokeOutlinePoints(
     ...endCap,
     ...rightPoints.reversed,
     ...startCap,
-  ].map((p) => p.toOffset()).toList();
+  ];
 }
