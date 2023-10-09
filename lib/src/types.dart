@@ -230,6 +230,7 @@ class PointVector {
   /// Get the normalized / unit vector.
   PointVector unit() {
     final length = sqrt(x * x + y * y);
+    if (length == 0) return PointVector.zero;
     return PointVector(
       x / length,
       y / length,
