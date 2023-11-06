@@ -17,9 +17,14 @@ List<StrokePoint> getStrokePoints(
   // Find the interpolation level between points.
   final t = 0.15 + (1 - streamline) * 0.85;
 
-  // Clone array of points and fill in missing p.
+  // Clone array of points and fill in missing pressure values.
   final pts =
       points.map((p) => p.copyWith(pressure: p.pressure ?? 0.5)).toList();
+
+  // If we have two equal points, treat them as a single point.
+  if (pts.length == 2 && pts.first == pts.last) {
+    pts.removeLast();
+  }
 
   // Add extra points between the two, to help avoid "dash" lines
   // for strokes with tapered start and ends. Don't mutate the
